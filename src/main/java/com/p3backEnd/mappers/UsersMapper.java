@@ -1,30 +1,27 @@
 package com.p3backEnd.mappers;
 
+
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+
 import com.p3backEnd.dto.UsersDto;
 import com.p3backEnd.model.Users;
 
+@Component
 public class UsersMapper {
 
-	public static UsersDto mapToDto(Users users){
-
-		UsersDto usersDto =  UsersDto.builder()
-                .email(users.getEmail())
-                .name(users.getName())
-                .password(users.getPassword())
-                .build();
-
-        return usersDto;
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+	
+	public UsersDto mapToDto(Users users){
+        return modelMapper().map(users, UsersDto.class);
     }
 
-    public static Users mapToEntity(UsersDto usersDto){
-
-    	Users users = Users.builder()
-                .email(usersDto.getEmail())
-                .name(usersDto.getName())
-                .password(usersDto.getPassword())
-                .build();
-
-        return users;
+    public Users mapToEntity(UsersDto usersDto){
+        return modelMapper().map(usersDto, Users.class);
     }
 
 }
