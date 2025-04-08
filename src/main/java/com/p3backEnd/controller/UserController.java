@@ -26,14 +26,15 @@ import com.p3backEnd.service.UserService;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-
+	@Autowired
+	private AuthenticationManager authenticationManager;
 	@Autowired
 	private UserService userService;
 	private JWTService jwtService;
 	private SpringSecurityConfig springSecurityConfig;
 	private UsersMapper usersMapper;
-	
-	private AuthenticationManager authenticationManager;
+
+
 	
 	public UserController(UserService userService,
 						  JWTService jwtService,
@@ -44,21 +45,6 @@ public class UserController {
 		this.springSecurityConfig = springSecurityConfig;
 		this.usersMapper = usersMapper;
 	}
-
-	/**
-	 * Read - Get one user 
-	 * @param id The id of the user
-	 * @return An User object full filled
-	 */
-//	@GetMapping("/user/{id}")
-//	public Users getEmployee(@PathVariable("id") final Long id) {
-//		Optional<Users> user = userService.getUser(id);
-//		if(user.isPresent()) {
-//			return user.get();
-//		} else {
-//			return null;
-//		}
-//	}
 	
 	/**
 	 * Register - Add a new user
@@ -77,9 +63,13 @@ public class UserController {
 		}
 	}
 
+	/**
+	 * Authentify user
+	 * @param Header
+	 * @return UsersDto
+	 */
     @GetMapping("/auth/me")
-    public ResponseEntity<UsersDto> currentUser(@RequestHeader(name = "Authorization") String header) {
-       
+    public ResponseEntity<UsersDto> currentUser(@RequestHeader(name="Authorization") String header) {      
         String jwtToken = header.replace("Bearer ", "");
         Jwt jwt = springSecurityConfig.jwtDecoder().decode(jwtToken);
         String name = jwt.getSubject();
@@ -97,13 +87,36 @@ public class UserController {
 	 * @param Authentication An object authentication
 	 * @return Token
 	 */
-	@PostMapping("/auth/login")
-	public String getToken(Authentication authentication) {
-		String token = jwtService.generateToken(authentication);
-		return token;
-	}
-	
+    @PostMapping("/auth/login")
+    public ResponseEntity<ResponseToken> login(@RequestBody LoginRequest body) {
+
+        Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(body.email, body.password);
+        Authentication authenticationResponse = authenticationManager.authenticate(authenticationRequest);
+        String token = jwtService.generateToken(authenticationResponse);
+        if (token != null) {
+            return ResponseEntity.ok(new ResponseToken(token));
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
+    
+	/**
+	 * Read - Get one user 
+	 * @param id The id of the user
+	 * @return An UsersDto object
+	 */
+    @GetMapping("/user/{id}")
+    public ResponseEntity<UsersDto> getUserById(@PathVariable String id) {
+        Optional<Users> user = userService.getUserById(id);
+        if(user.isPresent()){
+            UsersDto userDto = usersMapper.mapToDtoWithOptional(user);
+            return ResponseEntity.ok(userDto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     public record RegisterRequest(String email, String password, String name){}
-    public record LoginBody(String email, String password){}
+    public record LoginRequest(String email, String password){}
     public record ResponseToken(String token){}
 }

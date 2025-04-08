@@ -12,16 +12,23 @@ import com.p3backEnd.model.Users;
 public class UsersMapper {
 
     @Bean
-    public ModelMapper modelMapper() {
+    public ModelMapper usersModelMapper() {
         return new ModelMapper();
     }
 	
 	public UsersDto mapToDto(Users users){
-        return modelMapper().map(users, UsersDto.class);
+        return usersModelMapper().map(users, UsersDto.class);
     }
 
     public Users mapToEntity(UsersDto usersDto){
-        return modelMapper().map(usersDto, Users.class);
+        return usersModelMapper().map(usersDto, Users.class);
     }
 
+	public UsersDto mapToDtoWithOptional(Object users){
+        return usersModelMapper().map(users, UsersDto.class);
+    }
+
+    public Users mapToEntityWithOptional(Object usersDto){
+        return usersModelMapper().map(usersDto, Users.class);
+    }
 }

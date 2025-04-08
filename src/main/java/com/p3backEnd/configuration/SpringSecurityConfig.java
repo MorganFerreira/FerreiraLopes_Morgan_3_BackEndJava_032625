@@ -6,6 +6,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.p3backEnd.service.UserDetailService;
 
 @Configuration
 @EnableWebSecurity
@@ -69,4 +73,13 @@ public class SpringSecurityConfig {
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
+    @Bean
+	public AuthenticationManager authenticationManager(UserDetailService userDetailService, BCryptPasswordEncoder passwordEncoder) {
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setUserDetailsService(userDetailService);
+		authenticationProvider.setPasswordEncoder(passwordEncoder);
+		return new ProviderManager(authenticationProvider);
+	}
+    
 }

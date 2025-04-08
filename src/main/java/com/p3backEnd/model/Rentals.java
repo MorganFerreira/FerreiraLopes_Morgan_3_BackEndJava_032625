@@ -1,14 +1,20 @@
 package com.p3backEnd.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Entity
 public class Rentals {
 
@@ -17,12 +23,17 @@ public class Rentals {
 	private int id;
 	
 	private String name;
-	private int surface;
-	private int price;
+	private Integer surface;
+	private Integer price;
 	private String picture;
 	private String description;
-	private int owner_id;
-	private Date created_at;
-	private Date updated_at;
+	private Integer owner_id;
+
+	@CreatedDate
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime created_at;
+	
+	@LastModifiedDate
+	private LocalDateTime updated_at;
 
 }

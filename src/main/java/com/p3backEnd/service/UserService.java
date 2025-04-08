@@ -37,4 +37,9 @@ public class UserService {
     public Users getUserByName(String name){
         return userRepository.findByName(name);
     }
+    
+    public Optional<Users> getUserById(String id){
+        Integer ident = Integer.parseInt(id);
+        return userRepository.findById(ident);
+    }
 }
