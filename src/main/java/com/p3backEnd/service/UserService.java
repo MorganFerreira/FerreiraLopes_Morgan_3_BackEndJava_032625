@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.p3backEnd.configuration.SpringSecurityConfig;
-import com.p3backEnd.dto.UsersDto;
-import com.p3backEnd.mappers.UsersMapper;
 import com.p3backEnd.model.Users;
 import com.p3backEnd.repository.UserRepository;
 
@@ -22,10 +20,6 @@ public class UserService {
 	
 	@Autowired
 	private SpringSecurityConfig springSecurityConfig;
-	
-//	public Optional<Users> getUser(final Long id) {
-//        return userRepository.findById(id);
-//    }
 	
     public Users saveUsers(String email, String name, String password) {
 		Users newUsers = new Users(email, name, password);

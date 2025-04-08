@@ -89,7 +89,6 @@ public class UserController {
 	 */
     @PostMapping("/auth/login")
     public ResponseEntity<ResponseToken> login(@RequestBody LoginRequest body) {
-
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(body.email, body.password);
         Authentication authenticationResponse = authenticationManager.authenticate(authenticationRequest);
         String token = jwtService.generateToken(authenticationResponse);

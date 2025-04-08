@@ -1,15 +1,10 @@
 package com.p3backEnd.controller;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +26,7 @@ import com.p3backEnd.service.StorageService;
 import com.p3backEnd.service.UserService;
 
 @RestController
+@RequestMapping("/api/rentals")
 public class RentalController {
 	@Autowired
 	private RentalService rentalService;
@@ -57,7 +53,7 @@ public class RentalController {
 	 * @param 
 	 * @return List of Rentals
 	 */
-    @GetMapping("/api/rentals")
+    @GetMapping("")
     public ResponseEntity<RentalsResponse> findAllRentals() {
         List<Rentals> rentals = rentalService.getAllRentals();        
         if(rentals != null){
@@ -76,7 +72,7 @@ public class RentalController {
 	 * @return RentalResponse
 	 * @throws Exception 
 	 */
-    @PostMapping("/api/rentals")
+    @PostMapping("")
     public ResponseEntity<RentalResponse> createRental(MultipartHttpServletRequest createRequest) throws Exception {
         String token = createRequest.getHeader("Authorization").replace("Bearer", "");
         Jwt jwt = springSecurityConfig.jwtDecoder().decode(token);
@@ -95,7 +91,7 @@ public class RentalController {
 
         MultipartFile file = createRequest.getFile("picture");
         if (file != null && !file.isEmpty()) {
-            String fileName = "http://localhost:3001/" + file.getOriginalFilename();
+            String fileName = "http://localhost:8080/" + file.getOriginalFilename();
             storageService.store(file);
             newRental.setPicture(fileName);
         }
@@ -109,7 +105,7 @@ public class RentalController {
 	 * @param Id
 	 * @return Rental
 	 */
-    @GetMapping("/api/rentals/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RentalsDto> getRentalById(@PathVariable String id) {
         Optional<Rentals> rental = rentalService.getRentalById(id);
         if(rental != null){
@@ -125,7 +121,7 @@ public class RentalController {
 	 * @param Id and FormData
 	 * @return RentalResponse
 	 */
-    @PutMapping("/api/rentals/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<RentalResponse> updateRental(@PathVariable String id, MultipartHttpServletRequest modifyRequest) {
         String token = modifyRequest.getHeader("Authorization").replace("Bearer", "");
         Jwt jwt = springSecurityConfig.jwtDecoder().decode(token);
@@ -149,26 +145,6 @@ public class RentalController {
         } else {
             return ResponseEntity.status(401).build();
         }
-    }
-
-	/**
-	 * Get File by Name
-	 * @param filename
-	 * @return File
-	 * @throws Exception 
-	 */
-    @GetMapping("{filename}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws Exception {
-        Resource file = storageService.loadAsResource(filename);
-        if (file == null)
-            return ResponseEntity.notFound().build();
-        String contentType = Files.probeContentType(Path.of(filename));
-        if (contentType == null)
-            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-                .body(file);
     }
     
     public record CreateRentalRequest(
