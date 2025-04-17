@@ -6,7 +6,7 @@ Pré-requis :
 
 il est nécessaire d'avoir une base mysql intitulée "p3_back_end", et d'un user avec les droits sur la base.
 pour la gestion des images, il faut avoir un dossier C:\Users\wakka\eclipse-workspace\p3backEnd\uploads créé en local et un Simple Web Server pointant sur ce dossier, lancé sur le port 8080
-Clonez le dépôt git avec la commande suivante dans un terminal : git clone https://github.com/MorganFerreira/FerreiraLopes_Morgan_3_BackEndJava_032625.git
+Clonez le dépôt git avec la commande suivante dans un terminal : git clone https://github.com/MorganFerreira/FerreiraLopes_Morgan_3_BackEndJava_032625/tree/master
 Installation des dépendances et compilation : placez vous dans le répertoire racine du projet et tapez mvn clean install
 Appliquez le script sql suivant, à la racine du projet, à l'aide de la commande suivante : mysql -u root -p rentals < src/main/resources/script.sql
 Modifier le fichier application.properties pour ajouter les variables d'environnement aux propriétés spring.datasource.username et spring.datasource.password (cela concerne le couplet user/mot de passe de la base mysql)
