@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.p3backEnd.model.Messages;
 import com.p3backEnd.service.MessageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/messages")
 public class MessageController {
@@ -23,7 +25,8 @@ public class MessageController {
 	 * @param MessageRequest
 	 * @return MessageResponse
 	 */
-    @PostMapping("")
+    @Operation(summary = "Message", description = "Envoie un message avec en paramètre l'id de la location et le message")
+    @PostMapping
     public ResponseEntity<MessageResponse> createMessage(@RequestBody MessageRequest createRequest) {
 
         Messages newMessage = new Messages();

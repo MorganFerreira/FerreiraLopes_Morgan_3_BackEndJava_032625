@@ -3,26 +3,24 @@ package com.p3backEnd.dto;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class RentalsDto {
+public class RentalsWithPathForPicturesDto {
 
 	private Integer id;
 	private String name;
 	private Integer surface;
 	private Integer price;
-	private MultipartFile picture;
+	private String picture;
 	private String description;
 	private Integer owner_id;
 	private String created_at;
 	private String updated_at;
 	
-	public RentalsDto(Integer id, String name, Integer surface, Integer price, MultipartFile picture, String description,
+	public RentalsWithPathForPicturesDto(Integer id, String name, Integer surface, Integer price, String picture, String description,
             Integer owner_id, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
         this.name = name;

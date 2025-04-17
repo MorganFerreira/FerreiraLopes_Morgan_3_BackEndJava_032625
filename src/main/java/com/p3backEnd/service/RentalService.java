@@ -1,5 +1,6 @@
 package com.p3backEnd.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +21,11 @@ public class RentalService {
 		return rentalRepository.findAll();
 	}
 
-	public Rentals createRental(Rentals newRental) {
+	public Rentals createRental(Rentals newRental, Integer userId, String picturePath) {
+		newRental.setCreated_at(LocalDateTime.now());
+		newRental.setUpdated_at(LocalDateTime.now());
+		newRental.setOwner_id(userId);
+		newRental.setPicture(picturePath);
 		return rentalRepository.save(newRental);
 	}
 	
@@ -32,26 +37,13 @@ public class RentalService {
 	public String updateRental(String id, Rentals newRental) {
         Optional<Rentals> rentalOptional = rentalRepository.findById(Integer.parseInt(id));
         if(rentalOptional.isPresent()){
-           Rentals rentalToModify = rentalOptional.get();
-            if(newRental.getDescription() == null ){
-            	newRental.setDescription(rentalToModify.getDescription());
-            } 
-            if(newRental.getName() == null){
-            	newRental.setName(rentalToModify.getName());
-            }
-            if(newRental.getPicture() == null){
-            	newRental.setPicture(rentalToModify.getPicture());
-            }
-            if(newRental.getOwner_id() == null){
-            	newRental.setOwner_id(rentalToModify.getOwner_id());
-            }
-            if(newRental.getPrice() == null){
-            	newRental.setPrice(rentalToModify.getPrice());
-            }
-            if(newRental.getSurface() ==  null){
-            	newRental.setSurface(rentalToModify.getSurface());
-            }
-            newRental.setId(Integer.parseInt(id));
+            Rentals rentalToModify = rentalOptional.get();
+            newRental.setDescription(rentalToModify.getDescription());
+            newRental.setName(rentalToModify.getName());
+            newRental.setPrice(rentalToModify.getPrice());
+            newRental.setSurface(rentalToModify.getSurface());
+            newRental.setOwner_id(rentalToModify.getOwner_id());
+            newRental.setUpdated_at(LocalDateTime.now());
             rentalRepository.save(newRental);
             return "Rental updated";
         } else {

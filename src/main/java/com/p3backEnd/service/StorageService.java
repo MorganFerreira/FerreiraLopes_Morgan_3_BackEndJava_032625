@@ -7,13 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -35,7 +33,7 @@ public class StorageService {
 	 * @param file
 	 * @throws Exception 
 	 */
-    public void store(MultipartFile file) throws Exception{
+    public String store(MultipartFile file) throws Exception{
         try {
             if(file.isEmpty()){
                 throw new Exception("Empty file.");
@@ -50,6 +48,7 @@ public class StorageService {
         } catch (IOException e){
             throw new Exception("Failed to store file", e);
         }
+		return "http://localhost:8080/api/images/" + file.getOriginalFilename();
     }
     
 	/**
@@ -62,12 +61,11 @@ public class StorageService {
 		try {
 			Path file = load(filename);
 			Resource resource = new UrlResource(file.toUri());
-			if (resource.exists() || resource.isReadable()) {
+			if(resource.exists() || resource.isReadable()){
 				return resource;
 			}
 			else {
-				throw new Exception(
-					"Could not read file");
+				throw new Exception("Could not read file");
 			}
 		}
 		catch (MalformedURLException e) {
@@ -77,29 +75,5 @@ public class StorageService {
 	
 	public Path load(String filename) {
 		return rootLocation.resolve(filename);
-	}
-	
-	public void init() throws Exception {
-		try {
-			Files.createDirectories(rootLocation);
-		}
-		catch (IOException e) {
-			throw new Exception("Could not initialize storage", e);
-		}
-	}
-	
-	public Stream<Path> loadAll() throws Exception {
-		try {
-			return Files.walk(this.rootLocation, 1)
-				.filter(path -> !path.equals(this.rootLocation))
-				.map(this.rootLocation::relativize);
-		}
-		catch (IOException e) {
-			throw new Exception("Failed to read stored files", e);
-		}
-	}
-	
-	public void deleteAll() {
-		FileSystemUtils.deleteRecursively(rootLocation.toFile());
 	}
 }

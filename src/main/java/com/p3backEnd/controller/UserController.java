@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.p3backEnd.configuration.SpringSecurityConfig;
 import com.p3backEnd.dto.UsersDto;
 import com.p3backEnd.mappers.UsersMapper;
 import com.p3backEnd.model.Users;
 import com.p3backEnd.service.JWTService;
 import com.p3backEnd.service.UserService;
+
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api")
@@ -31,18 +31,15 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	private JWTService jwtService;
-	private SpringSecurityConfig springSecurityConfig;
 	private UsersMapper usersMapper;
 
 
 	
 	public UserController(UserService userService,
 						  JWTService jwtService,
-						  SpringSecurityConfig springSecurityConfig,
 						  UsersMapper usersMapper) {
 		this.userService = userService;
 		this.jwtService = jwtService;
-		this.springSecurityConfig = springSecurityConfig;
 		this.usersMapper = usersMapper;
 	}
 	
@@ -51,6 +48,7 @@ public class UserController {
 	 * @param RegisterRequest An object users
 	 * @return Token
 	 */
+	@Operation(summary = "Login", description = "Autorise un utilisateur à se connecter et retourne un token JWT")
     @PostMapping("/auth/register")
     public ResponseEntity<ResponseToken> registerUser(@RequestBody RegisterRequest body) {
 
@@ -68,12 +66,12 @@ public class UserController {
 	 * @param Header
 	 * @return UsersDto
 	 */
+	@Operation(summary = "Register a new user", description = "Vérifie si l'utilisateur est en BDD, crée l'utilisateur et retourne un token JWT")
     @GetMapping("/auth/me")
-    public ResponseEntity<UsersDto> currentUser(@RequestHeader(name="Authorization") String header) {      
-        String jwtToken = header.replace("Bearer ", "");
-        Jwt jwt = springSecurityConfig.jwtDecoder().decode(jwtToken);
-        String name = jwt.getSubject();
-        Users user = userService.getUserByName(name);
+    public ResponseEntity<UsersDto> currentUser(@RequestHeader("Authorization") String token, String header) {      
+        String userName = jwtService.getNameFromToken(token);
+        
+        Users user = userService.getUserByName(userName);
         UsersDto userDto = usersMapper.mapToDto(user);
         if(userDto != null){
             return ResponseEntity.ok(userDto);
@@ -87,6 +85,7 @@ public class UserController {
 	 * @param Authentication An object authentication
 	 * @return Token
 	 */
+	@Operation(summary = "Get user informations", description = "Retourne le nom et l'email de l'utilisateur")
     @PostMapping("/auth/login")
     public ResponseEntity<ResponseToken> login(@RequestBody LoginRequest body) {
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(body.email, body.password);
@@ -104,6 +103,7 @@ public class UserController {
 	 * @param id The id of the user
 	 * @return An UsersDto object
 	 */
+	@Operation(summary = "Get user by id", description = "Retourne un utilisateur par son id")
     @GetMapping("/user/{id}")
     public ResponseEntity<UsersDto> getUserById(@PathVariable String id) {
         Optional<Users> user = userService.getUserById(id);

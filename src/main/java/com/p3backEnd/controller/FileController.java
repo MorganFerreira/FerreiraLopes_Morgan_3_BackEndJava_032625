@@ -9,11 +9,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.p3backEnd.service.StorageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
+@RequestMapping("/api/images")
 public class FileController {
 
 	private final StorageService storageService;
@@ -28,7 +32,8 @@ public class FileController {
 	 * @return File
 	 * @throws Exception 
 	 */
-    @GetMapping("{filename}")
+	@Operation(summary = "Get file by fileName", description = "Retourne une image par son nom")
+    @GetMapping("/{filename}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) throws Exception {
         Resource file = storageService.loadAsResource(filename);
         if (file == null)

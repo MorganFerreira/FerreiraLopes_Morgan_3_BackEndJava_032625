@@ -1,0 +1,116 @@
+[1mdiff --git a/src/main/java/com/p3backEnd/controller/RentalController.java b/src/main/java/com/p3backEnd/controller/RentalController.java[m
+[1mindex c7341ac..dcd9b8a 100644[m
+[1m--- a/src/main/java/com/p3backEnd/controller/RentalController.java[m
+[1m+++ b/src/main/java/com/p3backEnd/controller/RentalController.java[m
+[36m@@ -8,9 +8,11 @@[m [mimport org.springframework.beans.factory.annotation.Autowired;[m
+ import org.springframework.http.ResponseEntity;[m
+ import org.springframework.security.oauth2.jwt.Jwt;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.ModelAttribute;[m
+ import org.springframework.web.bind.annotation.PathVariable;[m
+ import org.springframework.web.bind.annotation.PostMapping;[m
+ import org.springframework.web.bind.annotation.PutMapping;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.RequestHeader;[m
+ import org.springframework.web.bind.annotation.RequestMapping;[m
+ import org.springframework.web.bind.annotation.RestController;[m
+ import org.springframework.web.multipart.MultipartFile;[m
+[36m@@ -21,6 +23,7 @@[m [mimport com.p3backEnd.dto.RentalsDto;[m
+ import com.p3backEnd.mappers.RentalsMapper;[m
+ import com.p3backEnd.model.Rentals;[m
+ import com.p3backEnd.model.Users;[m
+[32m+[m[32mimport com.p3backEnd.service.JWTService;[m
+ import com.p3backEnd.service.RentalService;[m
+ import com.p3backEnd.service.StorageService;[m
+ import com.p3backEnd.service.UserService;[m
+[36m@@ -35,17 +38,20 @@[m [mpublic class RentalController {[m
+ 	private final RentalsMapper rentalsMapper;[m
+ 	private final SpringSecurityConfig springSecurityConfig;[m
+ 	private final StorageService storageService;[m
+[32m+[m	[32mprivate final JWTService jwtService;[m
+ 	[m
+ 	public RentalController(RentalService rentalService,[m
+ 							RentalsMapper rentalsMapper,[m
+ 							SpringSecurityConfig springSecurityConfig,[m
+ 							UserService userService,[m
+[31m-							StorageService storageService) {[m
+[32m+[m							[32mStorageService storageService,[m
+[32m+[m							[32mJWTService jwtService) {[m
+ 		this.rentalService = rentalService;[m
+ 		this.rentalsMapper = rentalsMapper;[m
+ 		this.springSecurityConfig = springSecurityConfig;[m
+ 		this.userService = userService;[m
+ 		this.storageService = storageService;[m
+[32m+[m		[32mthis.jwtService = jwtService;[m
+ 	}[m
+ [m
+ 	/**[m
+[36m@@ -53,7 +59,7 @@[m [mpublic class RentalController {[m
+ 	 * @param [m
+ 	 * @return List of Rentals[m
+ 	 */[m
+[31m-    @GetMapping("")[m
+[32m+[m[32m    @GetMapping("/api/rentals")[m
+     public ResponseEntity<RentalsResponse> findAllRentals() {[m
+         List<Rentals> rentals = rentalService.getAllRentals();        [m
+         if(rentals != null){[m
+[36m@@ -72,32 +78,19 @@[m [mpublic class RentalController {[m
+ 	 * @return RentalResponse[m
+ 	 * @throws Exception [m
+ 	 */[m
+[31m-    @PostMapping("")[m
+[31m-    public ResponseEntity<RentalResponse> createRental(MultipartHttpServletRequest createRequest) throws Exception {[m
+[31m-        String token = createRequest.getHeader("Authorization").replace("Bearer", "");[m
+[31m-        Jwt jwt = springSecurityConfig.jwtDecoder().decode(token);[m
+[31m-        String userName = jwt.getSubject();[m
+[31m-        Users user =  userService.getUserByName(userName);[m
+[31m-        Rentals newRental = new Rentals();[m
+[31m-        String description = createRequest.getParameter("description");[m
+[31m-        Integer surface = Integer.parseInt(createRequest.getParameter("surface"));[m
+[31m-        Integer price = Integer.parseInt(createRequest.getParameter("price"));[m
+[31m-        String rentalName = createRequest.getParameter("name");[m
+[31m-        newRental.setDescription(description);[m
+[31m-        newRental.setName(rentalName);[m
+[31m-        newRental.setSurface(surface);[m
+[31m-        newRental.setPrice(price);[m
+[31m-        newRental.setOwner_id(user.getId());[m
+[31m-[m
+[31m-        MultipartFile file = createRequest.getFile("picture");[m
+[31m-        if (file != null && !file.isEmpty()) {[m
+[31m-            String fileName = "http://localhost:8080/" + file.getOriginalFilename();[m
+[31m-            storageService.store(file);[m
+[31m-            newRental.setPicture(fileName);[m
+[31m-        }[m
+[31m-        [m
+[31m-        rentalService.createRental(newRental);[m
+[31m-        return ResponseEntity.ok(new RentalResponse("Location créée !!!"));[m
+[32m+[m[32m    @PostMapping[m
+[32m+[m[32m    public ResponseEntity<RentalResponse> createRental(@RequestHeader("Authorization") String token,[m[41m [m
+[32m+[m[41m    [m												[32m   @ModelAttribute RentalsDto rentalDto) throws Exception {[m
+[32m+[m[32m        String fileName = storageService.store(rentalDto.getPicture());[m
+[32m+[m[32m        String userName = jwtService.getNameFromToken(token);[m
+[32m+[m[32m        Rentals newRental = rentalService.createRental(rentalsMapper.mapToEntity(rentalDto),[m
+[32m+[m[41m        [m					[32muserService.getUserByName(userName).getId(),[m
+[32m+[m[41m        [m		[32m            fileName);[m
+[32m+[m[41m [m
+[32m+[m		[32mif(newRental != null){[m
+[32m+[m			[32mreturn ResponseEntity.ok(new RentalResponse("Location créée !!!"));[m
+[32m+[m		[32m}[m
+[32m+[m		[32melse return ResponseEntity.status(400).body(new RentalResponse("Erreur lors de la création de la location"));[m
+     }[m
+ [m
+ 	/**[m
+[36m@@ -143,7 +136,7 @@[m [mpublic class RentalController {[m
+         if(message == "Rental updated"){[m
+             return ResponseEntity.ok(new RentalResponse(message));[m
+         } else {[m
+[31m-            return ResponseEntity.status(401).build();[m
+[32m+[m[32m            return ResponseEntity.status(404).build();[m
+         }[m
+     }[m
+     [m
+[36m@@ -151,5 +144,4 @@[m [mpublic class RentalController {[m
+     		String name, String surface, String price, MultipartFile file, String description){}[m
+     public record RentalResponse(String response){}[m
+     public record RentalsResponse(List<RentalsDto> rentals){}[m
+[31m-    [m
+ }[m
