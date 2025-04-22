@@ -1,5 +1,7 @@
 package com.p3backEnd.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +35,8 @@ public class MessageController {
         newMessage.setUser_id(createRequest.user_id);
         newMessage.setRental_id(createRequest.rental_id);
         newMessage.setMessage(createRequest.message);
+        newMessage.setCreated_at(LocalDateTime.now());
+        newMessage.setUpdated_at(LocalDateTime.now());
         this.messageService.createMessage(newMessage);
         
         return ResponseEntity.ok(new MessageResponse("Message send !!!"));

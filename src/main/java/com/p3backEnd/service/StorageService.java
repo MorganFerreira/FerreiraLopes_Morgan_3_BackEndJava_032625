@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -43,7 +42,10 @@ public class StorageService {
                 throw new Exception("Cannot store file outside current directory");
             }
             try (InputStream inputStream = file.getInputStream()){
-                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+            	if (Files.exists(destinationFile)) {
+                    throw new Exception("File with the same name already exists: " + file.getOriginalFilename());
+                }
+                Files.copy(inputStream, destinationFile);
             }
         } catch (IOException e){
             throw new Exception("Failed to store file", e);

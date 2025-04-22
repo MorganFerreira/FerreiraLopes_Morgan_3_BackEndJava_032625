@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +28,7 @@ public class Rentals {
 	private Integer price;
 	private String picture;
 	private String description;
+	@ManyToOne(optional = false, targetEntity = Users.class)
 	private Integer owner_id;
 
 	@CreatedDate

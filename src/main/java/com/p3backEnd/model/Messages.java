@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,9 @@ public class Messages {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
+	@ManyToOne(optional = false, targetEntity = Rentals.class)
 	private Integer rental_id;
+	@ManyToOne(optional = false, targetEntity = Users.class)
 	private Integer user_id;
 	private String message;
 	

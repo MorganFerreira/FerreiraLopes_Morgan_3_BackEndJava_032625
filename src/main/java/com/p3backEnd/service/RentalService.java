@@ -38,13 +38,12 @@ public class RentalService {
         Optional<Rentals> rentalOptional = rentalRepository.findById(Integer.parseInt(id));
         if(rentalOptional.isPresent()){
             Rentals rentalToModify = rentalOptional.get();
-            newRental.setDescription(rentalToModify.getDescription());
-            newRental.setName(rentalToModify.getName());
-            newRental.setPrice(rentalToModify.getPrice());
-            newRental.setSurface(rentalToModify.getSurface());
-            newRental.setOwner_id(rentalToModify.getOwner_id());
+            rentalToModify.setDescription(newRental.getDescription());
+            rentalToModify.setName(newRental.getName());
+            rentalToModify.setPrice(newRental.getPrice());
+            rentalToModify.setSurface(newRental.getSurface());
             newRental.setUpdated_at(LocalDateTime.now());
-            rentalRepository.save(newRental);
+            rentalRepository.save(rentalToModify);
             return "Rental updated";
         } else {
             return "Rental not found";
